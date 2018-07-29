@@ -1,0 +1,13 @@
+# VS stuff
+*.vs
+*.obj
+*.pdb
+*.log
+*.tlog
+*.res
+*.exp
+*.lastbuildstate
+
+# exclude NDI SDK
+NDISDK/Include/*
+NDISDK/Lib/*
