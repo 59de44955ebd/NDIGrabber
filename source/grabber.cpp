@@ -15,7 +15,7 @@
 // Globals
 //######################################
 NDIlib_send_instance_t g_pNDI_send = NULL;
-NDIlib_video_frame_v2_t NDI_video_frame;
+NDIlib_video_frame_v2_t g_NDI_video_frame;
 
 #ifdef ASYNC_MODE
 PBYTE g_data = NULL;
@@ -250,11 +250,11 @@ HRESULT CNDIGrabber::Receive (IMediaSample * pMediaSample) {
 		//send the frame via NDI
 #ifdef ASYNC_MODE
 		memcpy(g_data, pbData, pMediaSample->GetActualDataLength());
-		NDI_video_frame.p_data = g_data;
-		NDIlib_send_send_video_async_v2(g_pNDI_send, &NDI_video_frame);
+		g_NDI_video_frame.p_data = g_data;
+		NDIlib_send_send_video_async_v2(g_pNDI_send, &g_NDI_video_frame);
 #else
-		NDI_video_frame.p_data = pbData;
-		NDIlib_send_send_video_v2(g_pNDI_send, &NDI_video_frame);
+		g_NDI_video_frame.p_data = pbData;
+		NDIlib_send_send_video_v2(g_pNDI_send, &g_NDI_video_frame);
 #endif
 
 	}
@@ -328,11 +328,11 @@ HRESULT CNDIGrabberInPin::SetMediaType (const CMediaType *pMediaType) {
 	m_bMediaTypeChanged = TRUE;
 
 	const GUID *pSubType = pMediaType->Subtype();
-	if      (*pSubType == MEDIASUBTYPE_UYVY)   NDI_video_frame.FourCC = NDIlib_FourCC_type_UYVY;
-	else if (*pSubType == MEDIASUBTYPE_NV12)   NDI_video_frame.FourCC = NDIlib_FourCC_type_NV12;
-	else if (*pSubType == MEDIASUBTYPE_RGB32)  NDI_video_frame.FourCC = NDIlib_FourCC_type_BGRX; // result vertically flipped
-	else if (*pSubType == MEDIASUBTYPE_ARGB32) NDI_video_frame.FourCC = NDIlib_FourCC_type_BGRA; // result vertically flipped
-	//else if (*pSubType == MEDIASUBTYPE_YV12)  NDI_video_frame.FourCC = NDIlib_FourCC_type_YV12; // not working
+	if      (*pSubType == MEDIASUBTYPE_UYVY)   g_NDI_video_frame.FourCC = NDIlib_FourCC_type_UYVY;
+	else if (*pSubType == MEDIASUBTYPE_NV12)   g_NDI_video_frame.FourCC = NDIlib_FourCC_type_NV12;
+	else if (*pSubType == MEDIASUBTYPE_RGB32)  g_NDI_video_frame.FourCC = NDIlib_FourCC_type_BGRX; // result vertically flipped
+	else if (*pSubType == MEDIASUBTYPE_ARGB32) g_NDI_video_frame.FourCC = NDIlib_FourCC_type_BGRA; // result vertically flipped
+	//else if (*pSubType == MEDIASUBTYPE_YV12)  g_NDI_video_frame.FourCC = NDIlib_FourCC_type_YV12; // not working
 
 	else {
 		NOTE("Invalid video media subtype");
@@ -343,16 +343,16 @@ HRESULT CNDIGrabberInPin::SetMediaType (const CMediaType *pMediaType) {
 	if ((pMediaType->formattype == FORMAT_VideoInfo) && (pMediaType->cbFormat == sizeof(VIDEOINFOHEADER) && (pMediaType->pbFormat != NULL))) {
 		VIDEOINFOHEADER *pVideoInfo = (VIDEOINFOHEADER *)pMediaType->Format();
 
-		NDI_video_frame.xres = pVideoInfo->bmiHeader.biWidth;
-		NDI_video_frame.yres = pVideoInfo->bmiHeader.biHeight;
-		if (NDI_video_frame.yres < 0) NDI_video_frame.yres = -NDI_video_frame.yres; // do we need this?
+		g_NDI_video_frame.xres = pVideoInfo->bmiHeader.biWidth;
+		g_NDI_video_frame.yres = pVideoInfo->bmiHeader.biHeight;
+		if (g_NDI_video_frame.yres < 0) g_NDI_video_frame.yres = -g_NDI_video_frame.yres; // do we need this?
 
 #ifdef ASYNC_MODE
 		if (g_data) {
-			g_data = (PBYTE)realloc(g_data, NDI_video_frame.xres * NDI_video_frame.yres * pVideoInfo->bmiHeader.biBitCount / 8);
+			g_data = (PBYTE)realloc(g_data, g_NDI_video_frame.xres * g_NDI_video_frame.yres * pVideoInfo->bmiHeader.biBitCount / 8);
 		}
 		else {
-			g_data = (PBYTE)malloc(NDI_video_frame.xres * NDI_video_frame.yres * pVideoInfo->bmiHeader.biBitCount / 8);
+			g_data = (PBYTE)malloc(g_NDI_video_frame.xres * g_NDI_video_frame.yres * pVideoInfo->bmiHeader.biBitCount / 8);
 		}
 		if (!g_data) return E_OUTOFMEMORY;
 #endif
