@@ -1,9 +1,8 @@
 #include <streams.h>
 
-
 // We define the interface the app can use to program us
 MIDL_INTERFACE("6B652FFF-11FE-4FCE-92AD-0266B5D7C78F")
-ISpoutGrabber : public IUnknown {
+INDIGrabber : public IUnknown {
 	public:
 		virtual HRESULT STDMETHODCALLTYPE SetAcceptedMediaType (const CMediaType *pType) = 0;
 		virtual HRESULT STDMETHODCALLTYPE GetConnectedMediaType (CMediaType *pType) = 0;
@@ -43,7 +42,7 @@ public:
 //----------------------------------------------------------------------------
 //
 //----------------------------------------------------------------------------
-class CNDIGrabber : public CTransInPlaceFilter, public ISpoutGrabber {
+class CNDIGrabber : public CTransInPlaceFilter, public INDIGrabber {
 	friend class CNDIGrabberInPin;
 
 protected:
@@ -66,14 +65,14 @@ public:
 
 	static CUnknown *WINAPI CreateInstance (LPUNKNOWN punk, HRESULT *phr);
 
-	// Expose ISpoutGrabber
+	// Expose INDIGrabber
 	STDMETHODIMP NonDelegatingQueryInterface (REFIID riid, void ** ppv);
 	DECLARE_IUNKNOWN;
 
 	CNDIGrabber(IUnknown * pOuter, HRESULT * pHr, BOOL ModifiesData);
 	~CNDIGrabber();
 
-	// ISpoutGrabber
+	// INDIGrabber
 	STDMETHODIMP SetAcceptedMediaType (const CMediaType * pMediaType);
 	STDMETHODIMP GetConnectedMediaType (CMediaType * pMediaType);
 };

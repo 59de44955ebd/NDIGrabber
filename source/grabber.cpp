@@ -1,6 +1,7 @@
 #include "grabber.h"
 #include <initguid.h>
 #include <Processing.NDI.Lib.h>
+//#include "dbg.h"
 
 //######################################
 // Defines
@@ -19,6 +20,7 @@ NDIlib_video_frame_v2_t g_NDI_video_frame;
 
 #ifdef ASYNC_MODE
 PBYTE g_data = NULL;
+int g_data_size;
 #endif
 
 //######################################
@@ -135,6 +137,7 @@ CNDIGrabber::CNDIGrabber (IUnknown * pOuter, HRESULT * phr, BOOL ModifiesData)
 	if (!g_pNDI_send) {
 		ErrorMessage("Creating NDI sender failed");
 	}
+
 }
 
 //######################################
@@ -169,7 +172,7 @@ STDMETHODIMP CNDIGrabber::NonDelegatingQueryInterface (REFIID riid, void ** ppv)
 	CheckPointer(ppv, E_POINTER);
 
 	if(riid == IID_INDIGrabber) {
-		return GetInterface((ISpoutGrabber *) this, ppv);
+		return GetInterface((INDIGrabber *) this, ppv);
 	}
 	else {
 		return CTransInPlaceFilter::NonDelegatingQueryInterface(riid, ppv);
@@ -249,7 +252,7 @@ HRESULT CNDIGrabber::Receive (IMediaSample * pMediaSample) {
 
 		//send the frame via NDI
 #ifdef ASYNC_MODE
-		memcpy(g_data, pbData, pMediaSample->GetActualDataLength());
+		memcpy(g_data, pbData, g_data_size);
 		g_NDI_video_frame.p_data = g_data;
 		NDIlib_send_send_video_async_v2(g_pNDI_send, &g_NDI_video_frame);
 #else
@@ -348,11 +351,12 @@ HRESULT CNDIGrabberInPin::SetMediaType (const CMediaType *pMediaType) {
 		if (g_NDI_video_frame.yres < 0) g_NDI_video_frame.yres = -g_NDI_video_frame.yres; // do we need this?
 
 #ifdef ASYNC_MODE
+		g_data_size = pVideoInfo->bmiHeader.biSizeImage;
 		if (g_data) {
-			g_data = (PBYTE)realloc(g_data, g_NDI_video_frame.xres * g_NDI_video_frame.yres * pVideoInfo->bmiHeader.biBitCount / 8);
+			g_data = (PBYTE)realloc(g_data, g_data_size);
 		}
 		else {
-			g_data = (PBYTE)malloc(g_NDI_video_frame.xres * g_NDI_video_frame.yres * pVideoInfo->bmiHeader.biBitCount / 8);
+			g_data = (PBYTE)malloc(g_data_size);
 		}
 		if (!g_data) return E_OUTOFMEMORY;
 #endif

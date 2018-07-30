@@ -21,11 +21,11 @@
 #endif
 
 // following are used in version info for the windows resource 
-#define DVER_ORIGINALFILENAME	"SpoutGrabber.ax"
+#define DVER_ORIGINALFILENAME	"NDIGrabber.ax"
 #define DVER_COMPANY			"Valentin Schmidt"
-#define DVER_FILEDESCRIPTION	"SpoutGrabber DirectShow Filter"
-#define DVER_PRODUCTNAME		"SpoutGrabber"
-#define DVER_INTERNALNAME		"SpoutGrabber.ax"
+#define DVER_FILEDESCRIPTION	"NDIGrabber DirectShow Filter"
+#define DVER_PRODUCTNAME		"NDIGrabber"
+#define DVER_INTERNALNAME		"NDIGrabber.ax"
 
 #define DVER_COPYRIGHT "(c) 2018"
 #define DVER_YEAR		"2018"
