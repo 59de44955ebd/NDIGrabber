@@ -11,3 +11,4 @@
 # exclude NDI SDK
 NDISDK/Include/*
 NDISDK/Lib/*
+/release
